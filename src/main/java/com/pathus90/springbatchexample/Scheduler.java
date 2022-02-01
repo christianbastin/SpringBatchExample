@@ -16,6 +16,6 @@ public class Scheduler {
     @Scheduled(fixedDelay = 8000)
     public void perform() throws Exception {
         log.info("Batch programmé pour tourner toutes les 8 secondes");
-        batchLauncher.run();
+     //   batchLauncher.run();
     }
 }

@@ -1,5 +1,13 @@
 package com.pathus90.springbatchexample.config;
 
+import com.pathus90.springbatchexample.batch.StudentProcessor;
+import com.pathus90.springbatchexample.batch.StudentWriter;
+import com.pathus90.springbatchexample.batch.ViesProcessor;
+import com.pathus90.springbatchexample.batch.ViesWriter;
+import com.pathus90.springbatchexample.model.Student;
+import com.pathus90.springbatchexample.model.StudentFieldSetMapper;
+import com.pathus90.springbatchexample.model.Vies;
+import com.pathus90.springbatchexample.model.ViesFieldSetMapper;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
@@ -19,22 +27,17 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-import com.pathus90.springbatchexample.batch.StudentProcessor;
-import com.pathus90.springbatchexample.batch.StudentWriter;
-import com.pathus90.springbatchexample.model.Student;
-import com.pathus90.springbatchexample.model.StudentFieldSetMapper;
-
 @Configuration
 @EnableBatchProcessing
 @EnableScheduling
-public class BatchConfig {
+public class BatchViesLoadConfig {
 
-    private static final String FILE_NAME = "results.csv";
-    private static final String JOB_NAME = "listStudentsJob";
-    private static final String STEP_NAME = "processingStep";
-    private static final String READER_NAME = "studentItemReader";
+    private static final String FILE_NAME = "vies.csv";
+    private static final String JOB_NAME = "listViesJob";
+    private static final String STEP_NAME = "viesProcessingStep";
+    private static final String READER_NAME = "viesItemReader";
 
-    @Value("${header.names}")
+    @Value("${vies.header.names}")
     private String names;
 
     @Value("${line.delimiter}")
@@ -47,43 +50,43 @@ public class BatchConfig {
     private StepBuilderFactory stepBuilderFactory;
 
     @Bean
-    public Step studentStep() {
+    public Step viesStep() {
         return stepBuilderFactory.get(STEP_NAME)
-                .<Student, Student>chunk(5)
-                .reader(studentItemReader())
-                .processor(studentItemProcessor())
-                .writer(studentItemWriter())
+                .<Vies, Vies>chunk(5)
+                .reader(viesItemReader())
+                .processor(viesItemProcessor())
+                .writer(viesItemWriter())
                 .build();
     }
 
-    @Bean(name="listStudentsJob")
-    public Job listStudentsJob(Step studentStep) {
+    @Bean(name="listViesJob")
+    public Job listViesJob(Step viesStep) {
         return jobBuilderFactory.get(JOB_NAME)
-                .start(studentStep)
+                .start(viesStep)
                 .build();
     }
     
     @Bean
-    public ItemReader<Student> studentItemReader() {
-        FlatFileItemReader<Student> reader = new FlatFileItemReader<>();
+    public ItemReader<Vies> viesItemReader() {
+        FlatFileItemReader<Vies> reader = new FlatFileItemReader<>();
         reader.setResource(new ClassPathResource(FILE_NAME));
         reader.setName(READER_NAME);
         reader.setLinesToSkip(1);
-        reader.setLineMapper(lineMapper());
+        reader.setLineMapper(viesLineMapper());
         return reader;
 
     }
 
     @Bean
-    public LineMapper<Student> lineMapper() {
+    public LineMapper<Vies> viesLineMapper() {
 
-        final DefaultLineMapper<Student> defaultLineMapper = new DefaultLineMapper<>();
+        final DefaultLineMapper<Vies> defaultLineMapper = new DefaultLineMapper<>();
         final DelimitedLineTokenizer lineTokenizer = new DelimitedLineTokenizer();
         lineTokenizer.setDelimiter(delimiter);
         lineTokenizer.setStrict(false);
         lineTokenizer.setNames(names.split(delimiter));
 
-        final StudentFieldSetMapper fieldSetMapper = new StudentFieldSetMapper();
+        final ViesFieldSetMapper fieldSetMapper = new ViesFieldSetMapper();
         defaultLineMapper.setLineTokenizer(lineTokenizer);
         defaultLineMapper.setFieldSetMapper(fieldSetMapper);
 
@@ -91,12 +94,12 @@ public class BatchConfig {
     }
 
     @Bean
-    public ItemProcessor<Student, Student> studentItemProcessor() {
-        return new StudentProcessor();
+    public ItemProcessor<Vies, Vies> viesItemProcessor() {
+        return new ViesProcessor();
     }
 
     @Bean
-    public ItemWriter<Student> studentItemWriter() {
-        return new StudentWriter();
+    public ItemWriter<Vies> viesItemWriter() {
+        return new ViesWriter();
     }
 }
