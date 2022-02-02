@@ -22,7 +22,8 @@ public class SpringBootSoapClientApplication {
             request.setCountryCode("");
             request.setVatNumber("");
             try {
-                CheckVatResponse response =(CheckVatResponse) soapConnector.callWebService("http://ec.europa.eu/taxation_customs/vies/services/checkVatService", request);
+                //CheckVatResponse response = soapConnector.callVies("http://ec.europa.eu/taxation_customs/vies/services/checkVatService", request);
+                CheckVatResponse response = soapConnector.callVies("http://ec.europa.eu/taxation_customs/vies/services/checkVatTestService", request);
                 System.out.println("Got Response As below ========= : ");
                 System.out.println("Name : "+response.getName());
                 System.out.println("Standard : "+response.getAddress());
